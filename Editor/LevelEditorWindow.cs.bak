@@ -1,0 +1,493 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using NUnit.Framework;
+using Sirenix.OdinInspector;
+using Sirenix.OdinInspector.Editor;
+using Sirenix.Utilities.Editor;
+using Unity.VisualScripting;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using ZHSM.cfg;
+
+namespace ZHSM.Editor
+{
+    [Serializable]
+    public class WaveEnemyEditorData
+    {
+        public int enemyId;
+        public int count;
+        public float probatility;
+    }
+    
+    [Serializable]
+    public class WaveEditorData
+    {
+        [HideInInspector]
+        public string title;
+        
+        [Title("$title")]
+        [LabelText("刷怪点索引列表")]
+        public List<int> spawnIds;
+        [LabelText("出怪列表")]
+        public List<WaveEnemyEditorData> enemyDatas;
+
+        [LabelText("前置事件")]
+        public string preEvent;
+        [LabelText("后置事件")]
+        public string postEvent;
+    }
+
+    public class PortalEditorPoint
+    {
+        public Transform portalPoint;
+        public int nextLevelId;
+    }
+    
+    public class LevelEditorWindow : OdinEditorWindow
+    {
+        private static Scene tempScene;
+        
+        private LevelsCfg levelsCfg;
+        private string levelTitle;
+        private Transform portalGroup;
+        private Transform spawnPointGroup;
+
+        [PropertyOrder(-100)]
+        [Button("生成关卡资源", ButtonSizes.Large)]
+        public void GenerateConfigAsset()
+        {
+            SurvivalConfig configAsset = ScriptableObject.CreateInstance<SurvivalConfig>();
+            configAsset.waves = new List<LevelWaveConfig>();
+
+            if (levelsCfg.Waves != null && levelsCfg.Waves.Count > 0)
+            {
+                List<Vector3> spawnPoints = new List<Vector3>();
+                if (levelsCfg.SpawnPoints != null && levelsCfg.SpawnPoints.Count > 0)
+                {
+                    for (int i = 0; i < levelsCfg.SpawnPoints.Count; i++)
+                    {
+                        spawnPoints.Add(LubanUtility.ParsePosition(levelsCfg.SpawnPoints[i]));
+                    }
+                }
+                
+                
+                for (int i = 0; i < levelsCfg.Waves.Count; i++)
+                {
+                    LevelWave wave = levelsCfg.Waves[i];
+                    
+                    LevelWaveConfig waveConfig = new LevelWaveConfig();
+                    
+                    // spawn points
+                    waveConfig.spawnPoints = new List<Vector3>();
+                    if (wave.SpawnPoints != null && wave.SpawnPoints.Count > 0)
+                    {
+                        for (int j = 0; j < wave.SpawnPoints.Count; j++)
+                        {
+                            int idx = wave.SpawnPoints[j];
+                            if (idx > spawnPoints.Count - 1 || idx < 0)
+                            {
+                                Debug.LogError("转换失败，出生点索引越界");
+                                return;
+                            }
+                            
+                            waveConfig.spawnPoints.Add(spawnPoints[idx]);
+                        }
+                    }
+                    
+                    waveConfig.enemyList = new List<LevelWaveEnemyConfig>();
+                    if (wave.EnemyList != null && wave.EnemyList.Count > 0)
+                    {
+                        for (int j = 0; j < wave.EnemyList.Count; j++)
+                        {
+                            waveConfig.enemyList.Add(new LevelWaveEnemyConfig()
+                            {
+                                enemyId = wave.EnemyList[j].EnemyId,
+                                count = wave.EnemyList[j].Count,
+                                probability = wave.EnemyList[j].Probability
+                            });
+                        }
+                    }
+                    
+                    waveConfig.preEvent = wave.PreEvent;
+                    waveConfig.postEvent = wave.PostEvent;
+
+                    configAsset.waves.Add(waveConfig);
+                }
+            }
+            
+            string assetPath = EditorUtility.SaveFilePanelInProject(
+                "Save ScriptableObject",
+                $"level_{levelsCfg.Id}",
+                "asset",
+                "Please enter a file name to save the asset to"
+            );
+            
+            AssetDatabase.CreateAsset(configAsset, assetPath);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            
+            EditorUtility.FocusProjectWindow();
+            Selection.activeObject = configAsset;
+        }
+        
+        [Title("$levelTitle")]
+        [PropertySpace(SpaceBefore = 5, SpaceAfter = 10)]
+        public SceneAsset sceneAsset;
+
+        [TabGroup("通用配置")] 
+        [LabelText("出生点")]
+        [InlineButton("CopyStartingPoint", "Copy")]
+        public Transform startingPoint;
+        
+        public void CopyStartingPoint()
+        {
+            EditorGUIUtility.systemCopyBuffer =
+                $"{startingPoint.position.x}&{startingPoint.position.y}&{startingPoint.position.z},{startingPoint.rotation.x}&{startingPoint.rotation.y}&{startingPoint.rotation.z}&{startingPoint.rotation.w}";
+        }
+        
+        [TabGroup("传送门")]
+        [ListDrawerSettings(CustomAddFunction = "AddPortalPoint", OnTitleBarGUI = "CopyPortalData")]
+        public List<PortalEditorPoint> portalPoints;
+        [TabGroup("刷怪点")]
+        [ListDrawerSettings(CustomAddFunction = "AddSpawnPoint", OnTitleBarGUI = "CopySpawnPointsData")]
+        public List<Transform> spawnPoints;
+        [TabGroup("刷怪波列表")]
+        [ListDrawerSettings(CustomAddFunction = "AddWaveData", OnTitleBarGUI = "CopyWaveData")]
+        public List<WaveEditorData> levelWaves;
+
+        private void OnEnable()
+        {
+            SceneView.duringSceneGui += OnSceneGUI;
+        }
+
+        private void OnDisable()
+        {
+            SceneView.duringSceneGui -= OnSceneGUI;
+            
+            CloseTempScene();
+        }
+
+        void OnSceneGUI(SceneView sceneView)
+        {
+            DrawPortalPoints();
+            DrawSpawnPoints();
+            
+            sceneView.Repaint();
+        }
+
+        public void Init(LevelsCfg _levelsCfg, SceneAsset _sceneAsset)
+        {
+            levelsCfg = _levelsCfg;
+            sceneAsset = _sceneAsset;
+
+            levelTitle = $"编辑关卡：{levelsCfg.Id}";
+            
+            //Scene
+            EditorSceneManager.OpenScene(AssetDatabase.GetAssetPath(sceneAsset), OpenSceneMode.Single);
+
+            tempScene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
+            tempScene.name = "Temp";
+            EditorSceneManager.SetActiveScene(tempScene);
+
+            //Common
+            startingPoint = new GameObject("StartingPoint").transform;
+            if (levelsCfg.StartingPoint != null)
+            {
+                startingPoint.SetPositionAndRotation(LubanUtility.ParsePosition(levelsCfg.StartingPoint.Position),
+                    LubanUtility.ParseRotation(levelsCfg.StartingPoint.Rotation));
+            }
+            else startingPoint.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+
+            //Portal
+            portalGroup = new GameObject("PortalGroup").transform;
+            portalGroup.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+            portalPoints = new List<PortalEditorPoint>();
+            if (levelsCfg.Portals != null)
+            {
+                for (int i = 0; i < levelsCfg.Portals.Count; i++)
+                {
+                    PortalConfig portal = levelsCfg.Portals[i];
+                    
+                    Transform portalPoint = new GameObject("portal_" + i).transform;
+                    portalPoint.SetParent(portalGroup);
+                    portalPoint.SetPositionAndRotation(
+                        new Vector3(portal.Position.X, portal.Position.Y, portal.Position.Z),
+                        new Quaternion(portal.Rotation.X, portal.Rotation.Y, portal.Rotation.Z, portal.Rotation.W));
+
+                    portalPoints.Add(new PortalEditorPoint
+                    {
+                        portalPoint = portalPoint,
+                        nextLevelId = portal.NextLevelId
+                    });
+                }
+            }
+
+            spawnPointGroup = new GameObject("SpawnPointGroup").transform;
+            spawnPointGroup.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+            spawnPoints = new List<Transform>();
+            if (levelsCfg.SpawnPoints != null)
+            {
+                for (int i = 0; i < levelsCfg.SpawnPoints.Count; i++)
+                {
+                    Position position = levelsCfg.SpawnPoints[i];
+                    
+                    Transform spawnPoint = new GameObject("spawn_" + i).transform;
+                    spawnPoint.SetParent(spawnPointGroup);
+                    spawnPoint.SetPositionAndRotation(
+                        new Vector3(position.X, position.Y, position.Z),
+                        Quaternion.identity);
+
+                    spawnPoints.Add(spawnPoint);
+                }
+            }
+
+
+            if (levelsCfg.Waves != null)
+            {
+                levelWaves = new List<WaveEditorData>();
+
+                for (int i = 0; i < levelsCfg.Waves.Count; i++)
+                {
+                    LevelWave levelWave = levelsCfg.Waves[i];
+
+                    List<WaveEnemyEditorData> enemyWaves = new List<WaveEnemyEditorData>();
+                    if (levelWave.EnemyList != null)
+                    {
+                        for (int j = 0; j < levelWave.EnemyList.Count; j++)
+                        {
+                            LevelWaveEnemy waveEnemy = levelWave.EnemyList[j];
+                            enemyWaves.Add(new WaveEnemyEditorData
+                            {
+                                enemyId = waveEnemy.EnemyId,
+                                count = waveEnemy.Count,
+                                probatility = waveEnemy.Probability
+                            });
+                        }
+                    }
+                    
+                    levelWaves.Add(new WaveEditorData
+                    {
+                        title = $"第{i+1}波",
+                        spawnIds = levelWave.SpawnPoints,
+                        enemyDatas = enemyWaves,
+                        preEvent = levelWave.PreEvent,
+                        postEvent = levelWave.PostEvent
+                    });
+                }
+            }
+            else levelWaves = null;
+        }
+
+        private void CloseTempScene()
+        {
+            if (tempScene.IsValid()) EditorSceneManager.CloseScene(tempScene, true);
+        }
+
+        private Vector3 GetSceneCenter()
+        {
+            Camera sceneCamera = SceneView.lastActiveSceneView.camera;
+            
+            Vector3 spawnPosition;
+            Vector3 rayOrigin = sceneCamera.transform.position;
+            Vector3 rayDirection = sceneCamera.transform.forward;
+            
+            Ray ray = new Ray(rayOrigin, rayDirection);
+            if (Physics.Raycast(ray, out RaycastHit hitInfo, 1000f)) // 最远检测 1000米
+            {
+                spawnPosition = hitInfo.point; // 如果打到了，使用打到的点
+            }
+            else
+            {
+                spawnPosition = rayOrigin + rayDirection * 60f; // 没打到，就前方10米
+            }
+            
+            return spawnPosition; // 10米前方
+        }
+
+        #region Portal
+        private void AddPortalPoint()
+        {
+            Transform newPoint =  new GameObject("PortalPoint").transform;
+            newPoint.SetParent(portalGroup);
+            newPoint.SetPositionAndRotation(GetSceneCenter(), Quaternion.identity);
+            
+            
+            portalPoints.Add(new PortalEditorPoint
+            {
+                portalPoint = newPoint,
+                nextLevelId = 0
+            });
+            
+            Undo.RegisterCreatedObjectUndo(newPoint.GameObject(), "Create PortalPoint");
+            
+            // 选中它
+            Selection.activeGameObject = newPoint.gameObject;
+        }
+
+        private void DrawPortalPoints()
+        {
+            Handles.color = Color.green;
+            for (int i = 0; i < portalPoints.Count; i++)
+            {
+                float size = HandleUtility.GetHandleSize(portalPoints[i].portalPoint.position) * 0.5f;
+                Handles.ArrowHandleCap(i, portalPoints[i].portalPoint.position, portalPoints[i].portalPoint.rotation, size, EventType.Repaint);
+                
+                if (Handles.Button(portalPoints[i].portalPoint.position, Quaternion.LookRotation(Vector3.up), size, size,
+                        Handles.RectangleHandleCap))
+                {
+                    Selection.activeGameObject = portalPoints[i].portalPoint.gameObject;
+                }
+                
+                Handles.Label(portalPoints[i].portalPoint.position, i.ToString());
+            }
+        }
+        
+        private void CopyPortalData()
+        {
+            if (!SirenixEditorGUI.ToolbarButton(EditorIcons.FlagFinnish)) return;
+
+            if (portalPoints == null || portalPoints.Count == 0)
+            {
+                EditorUtility.DisplayDialog("成功", "[传送门] 数据为空", "确定");
+                return;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            foreach (PortalEditorPoint editorPoint in portalPoints)
+            {
+                sb.Append($"{editorPoint.portalPoint.position.x}&{editorPoint.portalPoint.position.y}&{editorPoint.portalPoint.position.z},");
+                sb.Append($"{editorPoint.portalPoint.rotation.x}&{editorPoint.portalPoint.rotation.y}&{editorPoint.portalPoint.rotation.z}&{editorPoint.portalPoint.rotation.w}");
+                
+                // next level
+                sb.Append($",{editorPoint.nextLevelId};");
+            }
+
+            sb.Remove(sb.Length - 1, 1);
+            EditorGUIUtility.systemCopyBuffer = sb.ToString();
+            
+            EditorUtility.DisplayDialog("成功", "已复制 [传送门]", "确定");
+        }
+        #endregion
+
+        #region Spawn Points
+        private void AddSpawnPoint()
+        {
+            Transform spawnPoint =  new GameObject("SpawnPoint").transform;
+            spawnPoint.SetParent(spawnPointGroup);
+            spawnPoint.SetPositionAndRotation(GetSceneCenter(), Quaternion.identity);
+            spawnPoints.Add(spawnPoint);
+            
+            Undo.RegisterCreatedObjectUndo(spawnPoint.gameObject, "Create SpawnPoint");
+            
+            // 选中它
+            Selection.activeGameObject = spawnPoint.gameObject;
+        }
+        
+        private void DrawSpawnPoints()
+        {
+            Handles.color = Color.red;
+            for (int i = 0; i < spawnPoints.Count; i++)
+            {
+                float size = HandleUtility.GetHandleSize(spawnPoints[i].position) * 0.2f;
+                if (Handles.Button(spawnPoints[i].position, Quaternion.identity, size, size,
+                        Handles.SphereHandleCap))
+                {
+                    Selection.activeGameObject = spawnPoints[i].gameObject;
+                }
+                
+                Handles.Label(spawnPoints[i].position, i.ToString());
+            }
+        }
+        
+        private void CopySpawnPointsData()
+        {
+            if (!SirenixEditorGUI.ToolbarButton(EditorIcons.FlagFinnish)) return;
+
+            if (spawnPoints == null || spawnPoints.Count == 0)
+            {
+                EditorUtility.DisplayDialog("成功", "[刷怪点] 数据为空", "确定");
+                return;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            foreach (Transform spawnPoint in spawnPoints)
+            {
+                sb.Append($"{spawnPoint.position.x}&{spawnPoint.position.y}&{spawnPoint.position.z};");
+            }
+            sb.Remove(sb.Length - 1, 1);
+
+            EditorGUIUtility.systemCopyBuffer = sb.ToString();
+            
+            EditorUtility.DisplayDialog("成功", "已复制 [刷怪点]", "确定");
+        }
+        #endregion
+
+        #region Wave
+
+        private void AddWaveData()
+        {
+            levelWaves.Add(new WaveEditorData
+            {
+                title = $"第{levelWaves.Count + 1}波",
+                spawnIds = new List<int>(),
+                enemyDatas = new List<WaveEnemyEditorData>()
+            });
+        }
+        
+        private void CopyWaveData()
+        {
+            if (!SirenixEditorGUI.ToolbarButton(EditorIcons.FlagFinnish)) return;
+
+            if (levelWaves == null || levelWaves.Count == 0)
+            {
+                EditorUtility.DisplayDialog("成功", "[出怪波] 数据为空", "确定");
+                return;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < levelWaves.Count; i++)
+            {
+                //出怪点
+                List<int> spawnIds = levelWaves[i].spawnIds;
+                if (spawnIds != null)
+                {
+                    for (int j = 0; j < spawnIds.Count; j++)
+                    {
+                        sb.Append($"{spawnIds[j]},");
+                    }
+                }
+
+                sb.Remove(sb.Length - 1, 1);
+                sb.Append("&");
+                
+                //敌人列表
+                List<WaveEnemyEditorData> enemyWaves = levelWaves[i].enemyDatas;
+                if (enemyWaves != null)
+                {
+                    for (int j = 0; j < enemyWaves.Count; j++)
+                    {
+                        sb.Append($"{enemyWaves[j].enemyId},{enemyWaves[j].count},{enemyWaves[j].probatility}|");
+                    }
+                }
+                sb.Remove(sb.Length - 1, 1);
+                
+                //事件
+                sb.Append("&");
+                sb.Append(string.IsNullOrEmpty(levelWaves[i].preEvent) ? "null" : levelWaves[i].preEvent);
+                sb.Append("&");
+                sb.Append(string.IsNullOrEmpty(levelWaves[i].postEvent) ? "null" : levelWaves[i].postEvent);
+                
+                sb.Append(";");
+            }
+            
+            sb.Remove(sb.Length - 1, 1);
+            EditorGUIUtility.systemCopyBuffer = sb.ToString();
+            
+            EditorUtility.DisplayDialog("成功", "已复制 [出怪数据]", "确定");
+        }
+        #endregion
+    }
+}
