@@ -5,8 +5,7 @@ namespace ZHSM
 {
     public class EffectEntity : Entity
     {
-        [SerializeField]
-        private EffectData m_EffectData = null;
+        [SerializeField] private EffectData m_EffectData;
 
         private float m_ElapseSeconds = 0f;
 
@@ -27,6 +26,11 @@ namespace ZHSM
         protected override void OnUpdate(float elapseSeconds, float realElapseSeconds)
         {
             base.OnUpdate(elapseSeconds, realElapseSeconds);
+
+            if (m_EffectData.AttachPoint)
+            {
+                CachedTransform.SetPositionAndRotation(m_EffectData.AttachPoint.position, m_EffectData.AttachPoint.rotation);
+            }
 
             m_ElapseSeconds += elapseSeconds;
             if (m_ElapseSeconds >= m_EffectData.KeepTime)

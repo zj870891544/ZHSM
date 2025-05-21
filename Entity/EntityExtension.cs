@@ -53,9 +53,9 @@ namespace ZHSM
             entityComponent.ShowEntity(typeof(WeaponEntity), "Weapon", Constant.AssetPriority.WeaponAsset, weaponData);
         }
 
-        public static void ShowShield(this EntityComponent entityComponent, ShieldData shieldData)
+        public static void ShowGrenade(this EntityComponent entityComponent, GrenadeData grenadeData)
         {
-            entityComponent.ShowEntity(typeof(ShieldEntity), "Shield", Constant.AssetPriority.WeaponAsset, shieldData);
+            entityComponent.ShowEntity(typeof(GrenadeEntity), "Grenade", Constant.AssetPriority.BulletAsset, grenadeData);
         }
 
         public static void ShowEnemy(this EntityComponent entityComponent, EnemyData enemyData)
@@ -68,10 +68,20 @@ namespace ZHSM
         {
             entityComponent.ShowEntity(typeof(BossEntity), "Enemy", Constant.AssetPriority.EnemyAsset, bossData);
         }
+        
+        public static void ShowBossProjectile(this EntityComponent entityComponent, BossProjectileData projectileData)
+        {
+            entityComponent.ShowEntity(typeof(BossProjectile), "Bullet", Constant.AssetPriority.BulletAsset, projectileData);
+        }
 
         public static void ShowDefenseTower(this EntityComponent entityComponent, DefenseTowerData towerData)
         {
             entityComponent.ShowEntity(typeof(DefenseTower), "DefenseTower", Constant.AssetPriority.BuildingAsset, towerData);
+        }
+
+        public static void ShowCircleIndicator(this EntityComponent entityComponent, CircleIndicatorData circleIndicatorData)
+        {
+            entityComponent.ShowEntity(typeof(CircleIndicator), "Effect", Constant.AssetPriority.EffectAsset, circleIndicatorData);
         }
 
         private static void ShowEntity(this EntityComponent entityComponent, Type logicType, string entityGroup, int priority, EntityData data)

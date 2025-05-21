@@ -37,19 +37,19 @@ namespace ZHSM
         {
             base.OnEnter(procedureOwner);
             
-            GameEntry.Event.Subscribe(NetworkChangeSceneEventArgs.EventId, OnNetworkChangeScene);
+            GameEntry.Event.Subscribe(MultiPlayerChangeSceneEventArgs.EventId, OnNetworkChangeScene);
         }
 
         protected override void OnLeave(IFsm<IProcedureManager> procedureOwner, bool isShutdown)
         {
             base.OnLeave(procedureOwner, isShutdown);
             
-            GameEntry.Event.Unsubscribe(NetworkChangeSceneEventArgs.EventId, OnNetworkChangeScene);
+            GameEntry.Event.Unsubscribe(MultiPlayerChangeSceneEventArgs.EventId, OnNetworkChangeScene);
         }
         
         private void OnNetworkChangeScene(object sender, GameEventArgs e)
         {
-            NetworkChangeSceneEventArgs ne = e as NetworkChangeSceneEventArgs;
+            MultiPlayerChangeSceneEventArgs ne = e as MultiPlayerChangeSceneEventArgs;
             if (ne == null) return;
             
             ChangeScene(ne.SceneId);

@@ -13,7 +13,7 @@ namespace ZHSM
         {
             base.OnEnter(procedureOwner);
             
-            GameEntry.Network.FinishLoadScene();
+            GameEntry.MultiPlayer.FinishLoadScene();
 
             Debug.Log("ProcedureMenu Enter >>> ");
         }
@@ -24,14 +24,14 @@ namespace ZHSM
             
             if (GameEntry.BigSpace.isHost)
             {
-                GameEntry.Network.StartHost();
+                GameEntry.MultiPlayer.StartHost();
                 
                 // 进入初始关卡
                 GameEntry.Level.LoadLevel(GameEntry.Level.StartLevelId);
             }
             else
             {
-                GameEntry.Network.StartClient();
+                GameEntry.MultiPlayer.StartClient();
             }
         }
     }

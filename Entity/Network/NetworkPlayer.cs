@@ -17,6 +17,7 @@ namespace ZHSM
         private int m_WeaponEntityId;
         private Vector3 m_Position;
 
+        public Transform HeadTransform => headTransform;
         public override Vector3 Position
         {
             get

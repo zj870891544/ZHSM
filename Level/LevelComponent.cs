@@ -39,15 +39,14 @@ namespace ZHSM
             }
             
             string sceneAssetPath = AssetUtility.GetSceneAsset(sceneCfg.AssetName);
-            GameEntry.Network.LoadScene(sceneAssetPath);
+            GameEntry.MultiPlayer.LoadScene(sceneAssetPath);
         }
         #endregion
         
         #region Targetables
         [SerializeField]
         private Dictionary<CampType, List<NetworkTargetable>> m_Targetables = new Dictionary<CampType, List<NetworkTargetable>>();
-        public int PlayersCount =>
-            m_Targetables.ContainsKey(CampType.Player) ? m_Targetables[CampType.Player].Count : 0;
+        public List<NetworkTargetable> Players => m_Targetables?[CampType.Player];
 
         public void AddTargetable(CampType campType, NetworkTargetable networkTargetable)
         {

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using GameFramework.Fsm;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Serialization;
 using UnityGameFramework.Runtime;
 using ZHSM.cfg;
 
@@ -37,10 +35,10 @@ namespace ZHSM.Enemy
         [HideInInspector] public NavMeshAgent agent;
         public NetworkTargetable closestTarget;
 
-        protected NetworkEnemy networkEnemy;
-        protected Transform firePoint;
-        protected EnemyData enemyData;
-        protected IFsm<EnemyEntity> fsm;
+        private NetworkEnemy networkEnemy;
+        private Transform firePoint;
+        private EnemyData enemyData;
+        private IFsm<EnemyEntity> fsm;
 
         private EnemyCfg enemyCfg => enemyData.EnemyCfg;
         public EnemyType enemyType => enemyCfg?.Type ?? EnemyType.Unknow;

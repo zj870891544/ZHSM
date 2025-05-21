@@ -24,7 +24,6 @@ public partial class Tables : BaseLubanTables
     public TbConfigCfg TbConfigCfg {get; private set;}
     public TbCharacterCfg TbCharacterCfg {get; private set;}
     public TbEnemyCfg TbEnemyCfg {get; private set;}
-    public TbBossCfg TbBossCfg {get; private set;}
     public TbWeaponCfg TbWeaponCfg {get; private set;}
     public TbLevelsCfg TbLevelsCfg {get; private set;}
 
@@ -46,7 +45,6 @@ public partial class Tables : BaseLubanTables
         TbConfigCfg = new TbConfigCfg(await loader("tbconfigcfg"));
         TbCharacterCfg = new TbCharacterCfg(await loader("tbcharactercfg"));
         TbEnemyCfg = new TbEnemyCfg(await loader("tbenemycfg"));
-        TbBossCfg = new TbBossCfg(await loader("tbbosscfg"));
         TbWeaponCfg = new TbWeaponCfg(await loader("tbweaponcfg"));
         TbLevelsCfg = new TbLevelsCfg(await loader("tblevelscfg"));
         ResolveRef();
@@ -63,7 +61,6 @@ public partial class Tables : BaseLubanTables
         TbConfigCfg.ResolveRef(this);
         TbCharacterCfg.ResolveRef(this);
         TbEnemyCfg.ResolveRef(this);
-        TbBossCfg.ResolveRef(this);
         TbWeaponCfg.ResolveRef(this);
         TbLevelsCfg.ResolveRef(this);
     }

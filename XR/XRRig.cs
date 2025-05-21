@@ -14,7 +14,11 @@ namespace ZHSM
         public XROrigin xrOrigin;
         public XRDirectInteractor leftInteractor;
         public XRDirectInteractor rightInteractor;
-        
+
+        [Title("XR Controllers")]
+        public ActionBasedController leftHandController;
+        public ActionBasedController rightHandController;
+
         [Title("XR Rig")]
         public Transform headTransform;
         public Transform lHandTransform;
@@ -26,6 +30,7 @@ namespace ZHSM
             if (!interactable) return;
             
             interactionManager.SelectEnter(leftInteractor, interactable);
+
         }
 
         public void SelectRightTarget(GameObject target)

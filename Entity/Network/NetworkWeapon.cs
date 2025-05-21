@@ -7,6 +7,12 @@ using ZHSM.cfg;
 
 namespace ZHSM
 {
+    //添加绑定手的类型枚举
+    public enum HandType
+    { 
+        Right,
+        Left
+    }
     public class NetworkWeapon : NetworkBehaviour
     {
         [SyncVar(hook = nameof(OnWeaponIdUpdate))] [SerializeField]
@@ -20,6 +26,9 @@ namespace ZHSM
         [SerializeField] protected float amplitude = 0.5f;
         [SerializeField] protected int duration = 500;
         [SerializeField] protected int frequency = 500;
+
+        [Header("手柄绑定")]
+        [SerializeField] protected HandType handType = HandType.Right;//默认绑定右手
         
         private bool isSelected = false;
         private XRGrabInteractable grabInteractable;
@@ -64,6 +73,11 @@ namespace ZHSM
                 grabInteractable.deactivated.AddListener(OnDeactivated);
                 
                 XRRig.instance.SelectRightTarget(gameObject);
+                //根据武器类型不同选择绑定不同的手
+                if (handType == HandType.Left)
+                {
+                    XRRig.instance.SelectLeftTarget(gameObject);
+                }
             }
         }
 

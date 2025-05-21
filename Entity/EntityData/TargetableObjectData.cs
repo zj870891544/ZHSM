@@ -23,5 +23,16 @@ namespace ZHSM
         }
 
         public abstract int MaxHP { get; }
+        
+        /// <summary>
+        /// 生命百分比
+        /// </summary>
+        public float HPRatio
+        {
+            get
+            {
+                return MaxHP > 0 ? (float)HP / MaxHP : 0f;
+            }
+        }
     }
 }

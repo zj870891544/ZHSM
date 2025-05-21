@@ -9,7 +9,7 @@ namespace ZHSM
     {
         public static BuiltinDataComponent BuiltinData { get; private set; }
         public static LubanTableComponent LubanTable { get; private set; }
-        public static NetworkComponent Network { get; private set; }
+        public static MultiPlayerComponent MultiPlayer { get; private set; }
         public static BigSpaceComponent BigSpace { get; private set; }
         public static HPBarComponent HPBar { get; private set; }
         public static DamageTextComponent DamageText { get; private set; }
@@ -19,7 +19,7 @@ namespace ZHSM
         {
             BuiltinData = UnityGameFramework.Runtime.GameEntry.GetComponent<BuiltinDataComponent>();
             LubanTable = UnityGameFramework.Runtime.GameEntry.GetComponent<LubanTableComponent>();
-            Network = UnityGameFramework.Runtime.GameEntry.GetComponent<NetworkComponent>();
+            MultiPlayer = UnityGameFramework.Runtime.GameEntry.GetComponent<MultiPlayerComponent>();
             BigSpace = UnityGameFramework.Runtime.GameEntry.GetComponent<BigSpaceComponent>();
             HPBar = UnityGameFramework.Runtime.GameEntry.GetComponent<HPBarComponent>();
             DamageText = UnityGameFramework.Runtime.GameEntry.GetComponent<DamageTextComponent>();

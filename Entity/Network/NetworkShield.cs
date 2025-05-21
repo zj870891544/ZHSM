@@ -1,4 +1,6 @@
 using Mirror;
+using Sirenix.OdinInspector;
+using Unity.XR.PXR;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using ZHSM.cfg;
@@ -10,20 +12,28 @@ namespace ZHSM
         [SyncVar(hook = nameof(OnDefendingChanged))][SerializeField]
         protected bool isDefending = false;
 
-        //¶ÜÅÆÅö×²Ìå£¬ÔÚ·ÀÓù×´Ì¬ÏÂÆôÓÃ
-        [SerializeField] private Collider shieldCollider;
-
-        //¶ÜÅÆÄ£ĞÍ£¬¿ÉÒÔÔÚ·ÀÓù×´Ì¬ÏÂ¸Ä±äÎ»ÖÃ/½Ç¶È
-        [SerializeField] private Transform shieldModel;
-
-        // ·ÀÓù×ËÊÆµÄÎ»ÖÃÆ«ÒÆºÍĞı×ª
-        [SerializeField] private Vector3 defendingPositionOffset = new Vector3(0.2f, 0, 0.3f);
+        [Header("ç›¾ç‰Œè®¾ç½®")]
+        [SerializeField] private Collider shieldCollider;//ç›¾ç‰Œç¢°æ’ä½“ï¼Œåœ¨é˜²å¾¡çŠ¶æ€ä¸‹å¯ç”¨
+        [SerializeField] private Transform shieldModel; //ç›¾ç‰Œæ¨¡å‹ï¼Œå¯ä»¥åœ¨é˜²å¾¡çŠ¶æ€ä¸‹æ”¹å˜ä½ç½®/è§’åº¦
+        [SerializeField] private Vector3 defendingPositionOffset = new Vector3(0.2f, 0, 0.3f);// é˜²å¾¡å§¿åŠ¿çš„ä½ç½®åç§»å’Œæ—‹è½¬
         [SerializeField] private Vector3 defendingRotationOffset = new Vector3(0, 30, 0);
 
         private Vector3 originalPosition;
         private Quaternion originalRotation;
 
-       // protected ShieldCfg ShieldConfig => weaponCfg as ShieldCfg;
+        // protected ShieldCfg ShieldConfig => weaponCfg as ShieldCfg;
+        [Button]
+        public void DebugDefendOn()
+        {
+            OnDefendActivate();
+        }
+
+        [Button]
+        public void DebugDefendOff()
+        {
+            OnDefendDeactivate();
+        }
+
 
         [TargetRpc]
         public void RpcSetDefending(bool defending)
@@ -37,18 +47,18 @@ namespace ZHSM
             UpdateDefendingState(newValue);
         }
 
-        //¼Ì³Ğ×Ô¸¸ÀàµÄLoadWeaponInfo·½·¨¿ÉÒÔ´¦ÀíÎäÆ÷ID
-        //ÕâÀï´¦Àí¶ÜÅÆÌØÓĞµÄ³õÊ¼»¯Âß¼­
+        //ç»§æ‰¿è‡ªçˆ¶ç±»çš„LoadWeaponInfoæ–¹æ³•å¯ä»¥å¤„ç†æ­¦å™¨ID
+        //è¿™é‡Œå¤„ç†ç›¾ç‰Œç‰¹æœ‰çš„åˆå§‹åŒ–é€»è¾‘
         protected void InitializeShield()
         {
-            // ³õÊ¼»¯¶ÜÅÆ
+            // åˆå§‹åŒ–ç›¾ç‰Œ
             if (shieldModel != null)
             {
                 originalPosition = shieldModel.localPosition;
                 originalRotation = shieldModel.localRotation;
             }
 
-            // Ä¬ÈÏ¹Ø±ÕÅö×²Ìå
+            // é»˜è®¤å…³é—­ç¢°æ’ä½“
             if (shieldCollider != null)
             {
                 shieldCollider.enabled = false;
@@ -57,12 +67,15 @@ namespace ZHSM
 
         private new void Start()
         {
+            // è®¾ç½®ä¸ºå·¦æ‰‹æ­¦å™¨
+            handType = HandType.Left;
+
             base.Start();
 
             if (isOwned)
             {
                 isDefending = false;
-                // ÕÒµ½×é¼ş
+                // æ‰¾åˆ°ç»„ä»¶
                 if (shieldModel == null)
                 {
                     shieldModel = transform.Find("Model") as Transform;
@@ -73,24 +86,24 @@ namespace ZHSM
                     shieldCollider = shieldModel.GetComponent<Collider>();
                 }
 
-                // ±£´æÔ­Ê¼±ä»»
+                // ä¿å­˜åŸå§‹å˜æ¢
                 if (shieldModel != null)
                 {
                     originalPosition = shieldModel.localPosition;
                     originalRotation = shieldModel.localRotation;
                 }
 
-                // ÎªĞÂ°´Å¥Ìí¼Ó¼àÌıÆ÷£¨ÀıÈç¸±ÊÖ±úÉÏµÄ°´Å¥£©
-                // ÕâÀï¸ù¾İÊµ¼ÊµÄXR¿ØÖÆÆ÷Ìí¼Ó´úÂë
+                // ä¸ºæ–°æŒ‰é’®æ·»åŠ ç›‘å¬å™¨ï¼ˆä¾‹å¦‚å‰¯æ‰‹æŸ„ä¸Šçš„æŒ‰é’®ï¼‰
+                // è¿™é‡Œæ ¹æ®å®é™…çš„XRæ§åˆ¶å™¨æ·»åŠ ä»£ç 
             }
         }
 
-        // ¸²¸Ç¸¸ÀàµÄOnSelectExited·½·¨
+        // è¦†ç›–çˆ¶ç±»çš„OnSelectExitedæ–¹æ³•
         private new void OnSelectExited(SelectExitEventArgs args)
         {
             base.OnSelectExited(args);
 
-            // Íæ¼Ò·ÅÏÂ¶ÜÅÆÊ±µÄ²Ù×÷
+            // ç©å®¶æ”¾ä¸‹ç›¾ç‰Œæ—¶çš„æ“ä½œ
             if (isDefending)
             {
                 CmdSetDefending(false);
@@ -99,7 +112,7 @@ namespace ZHSM
 
 
         /// <summary>
-        ///¸üĞÂ·ÀÓù×´Ì¬µÄÊÓ¾õºÍ¹¦ÄÜ
+        ///æ›´æ–°é˜²å¾¡çŠ¶æ€çš„è§†è§‰å’ŒåŠŸèƒ½
         /// </summary>
         /// <param name="defending"></param>
         private void UpdateDefendingState(bool defending)
@@ -113,49 +126,84 @@ namespace ZHSM
             {
                 if (defending)
                 {
-                    //½øÈë·ÀÓù×ËÊÆ
+                    // æ’­æ”¾é˜²å¾¡çŠ¶æ€åˆ‡æ¢çš„éŸ³æ•ˆ
+                    GameEntry.Sound.PlaySound(weaponCfg.FireSounds, transform.position);
+                    //è¿›å…¥é˜²å¾¡å§¿åŠ¿
                     shieldModel.localPosition = originalPosition + defendingPositionOffset;
                     shieldModel.localRotation = originalRotation * Quaternion.Euler(defendingRotationOffset);
                 }
                 else 
                 {
-                    //»Ö¸´Ô­Ê¼Î»ÖÃ
+                    //æ¢å¤åŸå§‹ä½ç½®
                     shieldModel.localPosition = originalPosition;
                     shieldModel.localRotation = originalRotation;
                 }
             }
         }
 
-        // ¸²¸Ç¸¸ÀàµÄOnTrigger·½·¨£¬ÊµÏÖ¶ÜÅÆÌØÓĞµÄ´¥·¢ĞĞÎª
+        // è¦†ç›–çˆ¶ç±»çš„OnTriggeræ–¹æ³•ï¼Œå®ç°ç›¾ç‰Œç‰¹æœ‰çš„è§¦å‘è¡Œä¸º
         protected override void OnTrigger()
         {
-            // ÔÚÕâÀïÊµÏÖ¶ÜÅÆÖ÷´¥·¢Æ÷ĞĞÎª£¨Èç¹ûÓĞ£©
+            // åœ¨è¿™é‡Œå®ç°ç›¾ç‰Œä¸»è§¦å‘å™¨è¡Œä¸º
+            base.OnTrigger();
         }
 
-        // °´ÏÂ¸±°´¼üÊ±½øÈë·ÀÓù×´Ì¬
+        // æŒ‰ä¸‹å‰¯æŒ‰é”®(æŠ“æ¡)æ—¶è¿›å…¥é˜²å¾¡çŠ¶æ€
         public void OnDefendActivate()
         {
-            if (!isDefending)
+            if (isOwned)
             {
+                isDefending = true;
                 CmdSetDefending(true);
             }
         }
 
-        // ÊÍ·Å¸±°´¼üÊ±ÍË³ö·ÀÓù×´Ì¬
+        // é‡Šæ”¾å‰¯æŒ‰é”®(æŠ“æ¡)æ—¶é€€å‡ºé˜²å¾¡çŠ¶æ€
         public void OnDefendDeactivate()
         {
-            if (isDefending)
+            if (isOwned)
             {
+                isDefending = false;
                 CmdSetDefending(false);
             }
         }
 
-        [Command]
-        private void CmdSetDefending(bool defending)
+        [Command(requiresAuthority = false)]
+        private void CmdSetDefending(bool defending, NetworkConnectionToClient sender = null)
         {
             isDefending = defending;
         }
 
+
+        // è®¡ç®—å‡å…åçš„ä¼¤å®³
+        public float CalculateDefendingDamage(float originalDamage)
+        {
+            if (!isDefending)
+            {
+                return originalDamage;
+            }
+
+            // è®¡ç®—å‡å…åçš„ä¼¤å®³
+            float reducedDamage = originalDamage * (weaponCfg.DefenseMultiplier);
+
+            // æ’­æ”¾æ ¼æŒ¡æˆåŠŸéŸ³æ•ˆå’Œéœ‡åŠ¨
+            if (isOwned && hapticEnabled)
+            {
+                PXR_Input.SendHapticImpulse(PXR_Input.VibrateType.LeftController, amplitude, duration, frequency);
+            }
+
+            // æ’­æ”¾æ ¼æŒ¡æ•ˆæœ
+            if (weaponCfg.FlashEffectId > 0)
+            {
+                GameEntry.Entity.ShowEffect(new EffectData(GameEntry.Entity.GenerateSerialId(), weaponCfg.FlashEffectId)
+                {
+                    Position = transform.position,
+                    Rotation = transform.rotation
+                });
+            }
+
+            return reducedDamage;
+        }
     }
 }
 

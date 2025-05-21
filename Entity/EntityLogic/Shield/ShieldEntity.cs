@@ -9,13 +9,13 @@ namespace ZHSM
         private ShieldData m_ShieldData;
         private NetworkShield m_NetworkShield;
         
-        //盾牌模型组件
+        //鐩剧墝妯″瀷缁勪欢
         private GameObject m_shieldModel;
 
         protected override void OnInit(object userData)
         {
             base.OnInit(userData);
-            //获取盾牌模型
+            //鑾峰彇鐩剧墝妯″瀷
             m_shieldModel = transform.Find("Model").gameObject;
         }
 
@@ -33,7 +33,7 @@ namespace ZHSM
             if (NetworkServer.active)
                 NetworkServer.Spawn(gameObject,m_ShieldData.Connection);
 
-            // 获取网络盾牌组件
+            // 鑾峰彇缃戠粶鐩剧墝缁勪欢
             m_NetworkShield = GetComponent<NetworkShield>();
             if (m_NetworkShield == null)
             {
@@ -51,51 +51,6 @@ namespace ZHSM
 
         }
 
-        #region 其他
-        /// <summary>
-        /// 进入防御状态
-        /// </summary>
-        public void StartDefending()
-        {
-            if (m_ShieldData != null)
-            {
-                m_ShieldData.IsDefending = true;
-
-                //通知网络组件更新防御状态
-                if (m_NetworkShield != null)
-                {
-                    m_NetworkShield.RpcSetDefending(true);
-                }
-            }
-        }
-        /// <summary>
-        /// 退出防御状态
-        /// </summary>
-        public void StopDefending()
-        {
-            if (m_ShieldData != null)
-            {
-                m_ShieldData.IsDefending = false;
-                //通知网络组件更新防御状态
-                if (m_NetworkShield != null)
-                {
-                    m_NetworkShield.RpcSetDefending(false);
-                }
-            }
-        }
-
-        //计算防御后的伤害
-        public float CalculateDefendingDamage(float originalDamage)
-        {
-            if (m_ShieldData != null && m_ShieldData.IsDefending)
-            {
-                return originalDamage * m_ShieldData.DefenseMultiplier;
-            }
-            return originalDamage;
-        }
-
-
-        #endregion
     }
 }
 

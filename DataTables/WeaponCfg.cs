@@ -19,6 +19,7 @@ public sealed partial class WeaponCfg : Luban.BeanBase
     {
         { if(!_buf["Id"].IsNumber) { throw new SerializationException(); }  Id = _buf["Id"]; }
         { if(!_buf["EntityId"].IsNumber) { throw new SerializationException(); }  EntityId = _buf["EntityId"]; }
+        { if(!_buf["AssetName"].IsString) { throw new SerializationException(); }  AssetName = _buf["AssetName"]; }
         { if(!_buf["BulletId"].IsNumber) { throw new SerializationException(); }  BulletId = _buf["BulletId"]; }
         { if(!_buf["FirePoint"].IsString) { throw new SerializationException(); }  FirePoint = _buf["FirePoint"]; }
         { if(!_buf["FlashEffectId"].IsNumber) { throw new SerializationException(); }  FlashEffectId = _buf["FlashEffectId"]; }
@@ -30,6 +31,7 @@ public sealed partial class WeaponCfg : Luban.BeanBase
         { if(!_buf["Time"].IsNumber) { throw new SerializationException(); }  Time = _buf["Time"]; }
         { if(!_buf["TickDamage"].IsNumber) { throw new SerializationException(); }  TickDamage = _buf["TickDamage"]; }
         { if(!_buf["AttackDistance"].IsNumber) { throw new SerializationException(); }  AttackDistance = _buf["AttackDistance"]; }
+        { if(!_buf["DefenseMultiplier"].IsNumber) { throw new SerializationException(); }  DefenseMultiplier = _buf["DefenseMultiplier"]; }
     }
 
     public static WeaponCfg DeserializeWeaponCfg(JSONNode _buf)
@@ -45,6 +47,10 @@ public sealed partial class WeaponCfg : Luban.BeanBase
     /// 实体ID
     /// </summary>
     public readonly int EntityId;
+    /// <summary>
+    /// 实体资源名
+    /// </summary>
+    public readonly string AssetName;
     /// <summary>
     /// 子弹实体ID
     /// </summary>
@@ -89,6 +95,10 @@ public sealed partial class WeaponCfg : Luban.BeanBase
     /// 攻击距离
     /// </summary>
     public readonly float AttackDistance;
+    /// <summary>
+    /// 伤害减免倍率(0-1之间，0代表完全免疫伤害，1代表无伤害减免)
+    /// </summary>
+    public readonly float DefenseMultiplier;
    
     public const int __ID__ = 801300616;
     public override int GetTypeId() => __ID__;
@@ -102,6 +112,7 @@ public sealed partial class WeaponCfg : Luban.BeanBase
         return "{ "
         + "Id:" + Id + ","
         + "EntityId:" + EntityId + ","
+        + "AssetName:" + AssetName + ","
         + "BulletId:" + BulletId + ","
         + "FirePoint:" + FirePoint + ","
         + "FlashEffectId:" + FlashEffectId + ","
@@ -113,6 +124,7 @@ public sealed partial class WeaponCfg : Luban.BeanBase
         + "Time:" + Time + ","
         + "TickDamage:" + TickDamage + ","
         + "AttackDistance:" + AttackDistance + ","
+        + "DefenseMultiplier:" + DefenseMultiplier + ","
         + "}";
     }
 }

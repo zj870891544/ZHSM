@@ -18,7 +18,7 @@ namespace ZHSM
         {
             base.OnEnter(procedureOwner);
             
-            GameEntry.Network.FinishLoadScene();
+            GameEntry.MultiPlayer.FinishLoadScene();
 
             int levelId = GameEntry.Level.CurrentLevel;
             Debug.Log("ProcedureGamePlay Enter 关卡：" + levelId);

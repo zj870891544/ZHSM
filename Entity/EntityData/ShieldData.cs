@@ -4,23 +4,23 @@ using UnityEngine;
 namespace ZHSM
 {
     /// <summary>
-    /// ¶ÜÅÆÊı¾İÀà
+    /// ç›¾ç‰Œæ•°æ®ç±»
     /// </summary>
     public class ShieldData : WeaponData
     {
         public ShieldData(int entityId, int typeId,int shieldId,NetworkConnectionToClient connection) : base(entityId, typeId, shieldId, connection)
         {
             IsDefending = false;
-            DefenseMultiplier = 0.5f;//¼ÙÉè·ÀÓù×´Ì¬ÏÂ£¬ÉËº¦¼õÉÙ50%
+            DefenseMultiplier = 0.5f;//å¤„äºé˜²å¾¡çŠ¶æ€ä¸‹ï¼Œä¼¤å®³é™ä½50%
         }
 
         /// <summary>
-        /// ÊÇ·ñ´¦ÓÚ·ÀÓù×´Ì¬
+        /// æ˜¯å¦å¤„äºé˜²å¾¡çŠ¶æ€
         /// </summary>
         public bool IsDefending { get;  set; }
 
         /// <summary>
-        /// ·ÀÓù×´Ì¬ÏÂÉËº¦¼õÃâ±¶ÂÊ(0-1Ö®¼ä£¬0´ú±íÍêÈ«ÃâÒßÉËº¦£¬1´ú±íÎŞÉËº¦¼õÃâ)
+        /// é˜²å¾¡çŠ¶æ€ä¸‹ä¼¤å®³å‡å…å€ç‡(0-1ä¹‹é—´ï¼Œ0è¡¨ç¤ºå®Œå…¨é˜»æŒ¡ä¼¤å®³ï¼Œ1è¡¨ç¤ºä¼¤å®³ä¸å‡)
         /// </summary>
         public float DefenseMultiplier { get; private set; }
 
