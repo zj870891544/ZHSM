@@ -32,7 +32,7 @@ namespace ZHSM
         
         private bool isSelected = false;
         private XRGrabInteractable grabInteractable;
-        private ActionBasedController selectController;
+        protected ActionBasedController selectController;
         private InputAction activateValueAction;
         
         protected WeaponCfg weaponCfg;
@@ -129,6 +129,23 @@ namespace ZHSM
         }
 
         protected virtual void OnTriggeredChanged(bool oldValue, bool newValue)
+        {
+            
+        }
+        
+        
+        /// <summary>
+        /// 瞄准激活时调用（虚方法，子类可重写）
+        /// </summary>
+        public virtual void OnAimActivate()
+        {
+            
+        }
+
+        /// <summary>
+        /// 瞄准取消时调用（虚方法，子类可重写）
+        /// </summary>
+        public virtual void OnAimDeactivate()
         {
             
         }

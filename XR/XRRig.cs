@@ -1,4 +1,5 @@
-﻿using Sirenix.OdinInspector;
+﻿using System;
+using Sirenix.OdinInspector;
 using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -23,6 +24,8 @@ namespace ZHSM
         public Transform headTransform;
         public Transform lHandTransform;
         public Transform rHandTransform;
+
+        private Vector3 m_StandPosition;
         
         public void SelectLeftTarget(GameObject target)
         {
@@ -83,6 +86,15 @@ namespace ZHSM
         private void Awake()
         {
             instance = this;
+        }
+
+        private void Update()
+        {
+            m_StandPosition.x = headTransform.localPosition.x;
+            m_StandPosition.y = transform.localPosition.y;
+            m_StandPosition.z = headTransform.localPosition.z;
+            
+            GameEntry.BigSpace.UpdatePlayerInfo(m_StandPosition, headTransform.rotation);
         }
     }
 }

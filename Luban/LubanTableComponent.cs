@@ -166,6 +166,16 @@ namespace ZHSM
             return null;
         }
         
+        public TbWeaponGroupCfg GetTbWeaponGroupCfg()
+        {
+            if (GameEntry.LubanTable.TryGetTables(out cfg.Tables tables))
+            {
+                return tables.TbWeaponGroupCfg;
+            }
+        
+            return null;
+        }
+        
         public TbLevelsCfg GetTbLevelsCfg()
         {
             if (GameEntry.LubanTable.TryGetTables(out cfg.Tables tables))

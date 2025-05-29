@@ -115,15 +115,15 @@ namespace ZHSM
             
             Handles.color = Color.red;
             
-            float spacing = aoeCircle.circleRadius * 2f; // 点间距
-            for (float x = aoeCircle.areaCenter.x - aoeCircle.areaRadius + aoeCircle.circleRadius; x <= aoeCircle.areaCenter.x + aoeCircle.areaRadius - aoeCircle.circleRadius; x += spacing)
-            {
-                for (float z = aoeCircle.areaCenter.z - aoeCircle.areaRadius + aoeCircle.circleRadius; z <= aoeCircle.areaCenter.z + aoeCircle.areaRadius - aoeCircle.circleRadius; z += spacing)
-                {
-                    Vector3 point = new Vector3(x, 0, z);
-                    Handles.CircleHandleCap((int)(x*z), point, Quaternion.LookRotation(Vector3.up), aoeCircle.circleRadius, EventType.Repaint);
-                }
-            }
+            // float spacing = aoeCircle.circleRadius * 2f; // 点间距
+            // for (float x = aoeCircle.areaCenter.x - aoeCircle.areaRadius + aoeCircle.circleRadius; x <= aoeCircle.areaCenter.x + aoeCircle.areaRadius - aoeCircle.circleRadius; x += spacing)
+            // {
+            //     for (float z = aoeCircle.areaCenter.z - aoeCircle.areaRadius + aoeCircle.circleRadius; z <= aoeCircle.areaCenter.z + aoeCircle.areaRadius - aoeCircle.circleRadius; z += spacing)
+            //     {
+            //         Vector3 point = new Vector3(x, 0, z);
+            //         Handles.CircleHandleCap((int)(x*z), point, Quaternion.LookRotation(Vector3.up), aoeCircle.circleRadius, EventType.Repaint);
+            //     }
+            // }
         }
 #endif
     }

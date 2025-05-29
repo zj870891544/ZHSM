@@ -6,13 +6,14 @@ using UnityEngine;
 
 namespace ZHSM
 {
-    public class NetworkShotgun : NetworkWeapon
+    public class NetworkShotgun : NetworkTwoHandedWeapon
     {
         [Header("霰弹枪设置")]
         [SerializeField] private int pelletCount = 8;       // 单次射击的弹丸数量
         [SerializeField] private float spreadAngle = 30f;   // 散射角度
         [SerializeField] private float reloadTime = 1.0f;   // 装弹时间
-        [SerializeField] private float fireDistance;
+        [SerializeField] private float fireDistance = 15f;
+        [SerializeField] private float recoilStrength = 1.2f; // 后坐力强度
 
         private bool canFire = true;        // 是否可以开火
         private float reloadTimer = 0f;     // 装弹计时器
@@ -55,13 +56,15 @@ namespace ZHSM
             }
 
             // 霰弹枪有较强烈的后坐力，震动幅度更大
-            if (hapticEnabled)
-            {
-                PXR_Input.SendHapticImpulse(PXR_Input.VibrateType.RightController,
-                    amplitude * 1.5f,
-                    duration * 2,
-                    frequency);
-            }
+            // if (hapticEnabled)
+            // {
+            //     PXR_Input.SendHapticImpulse(PXR_Input.VibrateType.RightController,
+            //         amplitude * 1.5f,
+            //         duration * 2,
+            //         frequency);
+            // }
+            // 应用后坐力效果，霰弹枪后坐力较大
+            ApplyRecoil(recoilStrength);
 
             // 播放射击效果并发送网络命令
             ShowShotgunBlast(isServer);
@@ -180,6 +183,15 @@ namespace ZHSM
 
             Vector3 endPoint = firePoint.position + firePoint.forward * distance;
 
+            // 如果启用了双手持握稳定性，绘制更小的散射范围
+            if (secondaryGrabPoint != null)
+            {
+                Gizmos.color = Color.green;
+                float reducedSpreadAngle = spreadAngle * (1.0f - stabilityBonus);
+                float reducedRadius = distance * Mathf.Tan(reducedSpreadAngle * Mathf.Deg2Rad);
+                DrawCircle(endPoint, firePoint.forward, reducedRadius, 32);
+            }
+            
             // 绘制散射锥体
             Gizmos.DrawLine(firePoint.position, endPoint);
             DrawCircle(endPoint, firePoint.forward, radius, 32);
@@ -203,21 +215,5 @@ namespace ZHSM
                 prevPoint = nextPoint;
             }
         }
-
-//#if UNITY_EDITOR
-//        private void OnDrawGizmos()
-//        {
-//            if (!firePoint) return;
-
-//            Handles.color = new Color(1f, 0.5f, 0f, 0.3f); // 半透明橙色
-
-//            Vector3 origin = firePoint.position;
-//            Vector3 forward = firePoint.forward;
-//            float angle = spreadAngle / 2f;
-
-//            Vector3 discCenter = origin + forward * fireDistance;
-//            Handles.DrawWireDisc(discCenter, forward, Mathf.Tan(Mathf.Deg2Rad * angle) * fireDistance);
-//        }
-//#endif
     }
 }

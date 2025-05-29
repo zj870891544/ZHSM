@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace ZHSM
 {
-    public class NetworkAutomaticRifle : NetworkWeapon
+    public class NetworkAutomaticRifle : NetworkTwoHandedWeapon
     {
         [Button]
         [HorizontalGroup("TriggerGroup")]
@@ -21,8 +21,10 @@ namespace ZHSM
             isTriggered = false;
         }
         
-        
+        [Header("自动步枪设置")]
         [SerializeField] private float fireRate = 0.5f;
+        [SerializeField] private float baseSpreadAngle = 3.0f; // 基础散布角度
+        [SerializeField] private float recoilStrength = 0.7f; // 后坐力强度
 
         private float fireTimer = 0.0f;
 
@@ -55,8 +57,11 @@ namespace ZHSM
 
         private void ShowBullet(bool isServerBullet)
         {
-            if(hapticEnabled)
-                PXR_Input.SendHapticImpulse(PXR_Input.VibrateType.RightController, amplitude, duration, frequency);
+            // if(hapticEnabled)
+            //     PXR_Input.SendHapticImpulse(PXR_Input.VibrateType.RightController, amplitude, duration, frequency);
+           
+            // 应用后坐力效果
+            ApplyRecoil(recoilStrength);
             
             // sound
             GameEntry.Sound.PlaySound(weaponCfg.FireSounds, firePoint.position);
@@ -70,6 +75,12 @@ namespace ZHSM
                     Rotation = firePoint.rotation
                 });
             }
+            
+            // 计算实际散布角度
+           // float spreadAngle = CalculateSpreadAngle(baseSpreadAngle);
+            
+            // 根据散布角度计算子弹方向的随机偏移
+          //  Vector3 bulletDirection = CalculateBulletDirection(spreadAngle);
             
             // fire bullet
             GameEntry.Entity.ShowBullet(new BulletData(GameEntry.Entity.GenerateSerialId(), weaponCfg.BulletId,
@@ -85,6 +96,28 @@ namespace ZHSM
                 HitEffectId = weaponCfg.HitEffectId,
                 HitSoundId = GameEntry.Sound.GetRandomSoundId(weaponCfg.HitSounds)
             });
+        }
+        
+        /// <summary>
+        /// 计算子弹发射方向，考虑散布角度
+        /// </summary>
+        private Vector3 CalculateBulletDirection(float spreadAngle)
+        {
+            if (spreadAngle <= 0)
+            {
+                return firePoint.forward;
+            }
+            
+            // 在锥形范围内随机生成方向
+            float randAngle = Random.Range(0f, spreadAngle);
+            float randDir = Random.Range(0f, 360f);
+            
+            // 将随机角度转换为方向向量
+            Vector3 bulletDir = firePoint.forward;
+            bulletDir = Quaternion.AngleAxis(randAngle, firePoint.up) * bulletDir;
+            bulletDir = Quaternion.AngleAxis(randDir, firePoint.forward) * bulletDir;
+            
+            return bulletDir.normalized;
         }
     }
 }

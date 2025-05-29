@@ -1,5 +1,4 @@
-﻿using GameFramework.Event;
-using GameFramework.Fsm;
+﻿using GameFramework.Fsm;
 using GameFramework.Procedure;
 using UnityEngine;
 
@@ -16,23 +15,6 @@ namespace ZHSM
             GameEntry.MultiPlayer.FinishLoadScene();
 
             Debug.Log("ProcedureMenu Enter >>> ");
-        }
-
-        public void StartGame()
-        {
-            Debug.Log("ProcedureMenu >>> StartGame");
-            
-            if (GameEntry.BigSpace.isHost)
-            {
-                GameEntry.MultiPlayer.StartHost();
-                
-                // 进入初始关卡
-                GameEntry.Level.LoadLevel(GameEntry.Level.StartLevelId);
-            }
-            else
-            {
-                GameEntry.MultiPlayer.StartClient();
-            }
         }
     }
 }

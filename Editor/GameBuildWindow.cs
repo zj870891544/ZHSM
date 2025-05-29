@@ -11,7 +11,7 @@ namespace ZHSM.Editor
         {
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
             buildPlayerOptions.scenes = new[] { "Assets/Game Launcher.unity", "Assets/GameLink.unity" };
-            buildPlayerOptions.locationPathName = "Build/vr.apk";
+            buildPlayerOptions.locationPathName = "Build/eliteops_vr.apk";
             buildPlayerOptions.target = BuildTarget.Android;
             buildPlayerOptions.options = BuildOptions.None;
         

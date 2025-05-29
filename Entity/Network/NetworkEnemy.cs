@@ -54,5 +54,16 @@ namespace ZHSM
             if(deadSoundId > 0)
                 GameEntry.Sound.PlaySound(deadSoundId, transform.position);
         }
+
+
+        private void ShootAttack()
+        {
+            
+        }
+
+        private void MeleeAttack()
+        {
+            
+        }
     }
 }

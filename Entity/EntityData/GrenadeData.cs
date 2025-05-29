@@ -22,6 +22,11 @@ namespace ZHSM
             ExplosionRadius = explosionRadius;
             EffectDuration = effectDuration;
             IsServerObject = isServerObject;
+            
+            // 设置默认抛物线参数
+            InitialSpeed = 15f;
+            LaunchAngle = 45f;
+            ArcHeight = 2f;
         }
 
         public GrenadeType GrenadeType { get; private set; }
@@ -32,5 +37,11 @@ namespace ZHSM
         public GameObject Owner { get; set; }
         public int ExplosionEffectId { get; set; }
         public int ExplosionSoundId { get; set; }
+        
+        // 抛物线参数
+        public float InitialSpeed { get; set; }  // 初始发射速度
+        public float LaunchAngle { get; set; }   // 发射角度（度数）
+        public float ArcHeight { get; set; }     // 抛物线高度
+        public Vector3 LaunchDirection { get; set; } // 发射方向
     }
 }

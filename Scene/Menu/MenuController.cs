@@ -10,7 +10,8 @@ namespace ZHSM
 
         [SerializeField] private Rect _rect;
         private string characterId = "10001";
-        private string weaponId = "10003";
+        private string weaponId = "10002";
+        private string weaponGroupId = "0";
 
         private void OnGUI()
         {
@@ -41,12 +42,28 @@ namespace ZHSM
             GUILayout.Label("武器：", bigFontStyle, GUILayout.Height(40)); // 应用大字体样式
             weaponId = GUILayout.TextField(weaponId, textFieldStyle, GUILayout.Height(40));
             GUILayout.EndHorizontal();
-
+            
+            // 武器组行
+            GUILayout.BeginHorizontal();
+            Color originalColor = GUI.color; // 保存当前颜色
+            GUI.color = Color.red; // 设置红色
+            GUILayout.Label("武器组:", bigFontStyle, GUILayout.Height(40)); // 仅显示“武器组”
+            weaponGroupId = GUILayout.TextField(weaponGroupId, textFieldStyle, GUILayout.Height(40)); 
+            GUILayout.EndHorizontal();
+            
+            //文案
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("设置武器组请配成90001", bigFontStyle, GUILayout.Height(40)); 
+            GUI.color = originalColor; // 恢复原颜色
+            GUILayout.EndHorizontal();
+            
+            
             // 按钮
             if (GUILayout.Button("Start Game", buttonStyle, GUILayout.Height(60)))
             {
-                GameEntry.BigSpace.CharacterId = int.Parse(characterId);
-                GameEntry.BigSpace.WeaponId = int.Parse(weaponId);
+                // GameEntry.BigSpace.CharacterId = int.Parse(characterId);
+                GameEntry.WeaponManager.WeaponId = int.Parse(weaponId);
+                GameEntry.WeaponManager.WeaponGroupId = int.Parse(weaponGroupId);
                 StartGame();
             }
 
@@ -59,10 +76,11 @@ namespace ZHSM
         }
 
         [Button(ButtonSizes.Large)]
-        public void StartGame(int characterId = 10001, int weaponId = 10003)
+        public void StartGame(int characterId = 10001, int weaponId = 10003,int weapongroupId = 0)
         {
-            GameEntry.BigSpace.CharacterId = characterId;
-            GameEntry.BigSpace.WeaponId = weaponId;
+            // GameEntry.BigSpace.CharacterId = characterId;
+            GameEntry.WeaponManager.WeaponId = weaponId;
+            GameEntry.WeaponManager.WeaponGroupId = weapongroupId;
             
             StartGame();
         }
@@ -70,12 +88,10 @@ namespace ZHSM
         
         public void StartGame()
         {
-            if (GameEntry.BigSpace.CharacterId <= 0 || GameEntry.BigSpace.WeaponId <= 0) return;
-            
+            if (GameEntry.WeaponManager.WeaponId <= 0) return;
+            //角色给一个默认值，不用选角色了
+            //if (GameEntry.BigSpace.CharacterId <= 0) GameEntry.BigSpace.CharacterId = 10001;
             m_StartButton.enabled = false;
-            
-            ProcedureMenu procedureMenu = GameEntry.Procedure.CurrentProcedure as ProcedureMenu;
-            procedureMenu?.StartGame();
         }
     }
 }

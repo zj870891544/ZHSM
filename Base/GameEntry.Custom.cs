@@ -14,6 +14,8 @@ namespace ZHSM
         public static HPBarComponent HPBar { get; private set; }
         public static DamageTextComponent DamageText { get; private set; }
         public static LevelComponent Level { get; private set; }
+        
+        public static WeaponManagerComponent WeaponManager { get; private set; }
 
         private static void InitCustomComponents()
         {
@@ -24,6 +26,7 @@ namespace ZHSM
             HPBar = UnityGameFramework.Runtime.GameEntry.GetComponent<HPBarComponent>();
             DamageText = UnityGameFramework.Runtime.GameEntry.GetComponent<DamageTextComponent>();
             Level = UnityGameFramework.Runtime.GameEntry.GetComponent<LevelComponent>();
+            WeaponManager = UnityGameFramework.Runtime.GameEntry.GetComponent<WeaponManagerComponent>();
         }
     }
 }

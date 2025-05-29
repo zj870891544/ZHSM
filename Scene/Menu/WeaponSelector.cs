@@ -1,7 +1,16 @@
-﻿namespace ZHSM
+﻿using TMPro;
+using UnityEngine;
+
+namespace ZHSM
 {
     public class WeaponSelector : XRPlaceSelector
     {
+        [SerializeField] private TextMeshPro weaponText;
+        private void Start()
+        {
+            weaponText.text = "未选武器";
+        }
+        
         public override void PlaceItem(XRPlaceItem grabItem)
         {
             base.PlaceItem(grabItem);
@@ -9,7 +18,8 @@
             WeaponItem weaponItem = grabItem as WeaponItem;
             if (weaponItem)
             {
-                GameEntry.BigSpace.WeaponId = weaponItem.weaponId;
+                GameEntry.WeaponManager.WeaponId = weaponItem.weaponId;
+                weaponText.text = weaponItem.weaponId.ToString();
             }
         }
 
@@ -17,7 +27,8 @@
         {
             base.RemoveItem();
 
-            GameEntry.BigSpace.WeaponId = 0;
+            GameEntry.WeaponManager.WeaponId = 0;
+            weaponText.text = "未选武器";
         }
     }
 }

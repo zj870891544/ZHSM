@@ -20,13 +20,13 @@ namespace ZHSM
                 return;
             }
 
-            // �����������
+            // 如果是服务器则生成网络对象
             if (NetworkServer.active)
                 NetworkServer.Spawn(gameObject);
 
             m_NetworkGrenade = GetComponent<NetworkGrenade>();
 
-            // ������������
+            // 设置手雷弹属性参数
             if (m_NetworkGrenade != null)
             {
                 m_NetworkGrenade.RpcSetGrenadeProperties(
@@ -38,7 +38,7 @@ namespace ZHSM
                     m_GrenadeData.ExplosionSoundId
                 );
 
-                // ����������
+                // 设置手榴弹所有者
                 if (m_GrenadeData.Owner != null)
                 {
                     m_NetworkGrenade.Owner = m_GrenadeData.Owner;

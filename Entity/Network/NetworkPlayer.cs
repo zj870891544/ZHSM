@@ -34,8 +34,20 @@ namespace ZHSM
             base.OnStartLocalPlayer();
             
             m_XRRig = FindObjectOfType<XRRig>();
-            
-            CmdLoadWeapon(GameEntry.BigSpace.WeaponId);
+
+             //有配置武器组ID加载武器组
+            //这里特殊处理下：选手枪和盾牌的时候，直接加载武器组90001(后续扩展再补逻辑)
+            if (GameEntry.WeaponManager.WeaponGroupId > 0 ||
+                GameEntry.WeaponManager.WeaponId == 10003 ||
+                GameEntry.WeaponManager.WeaponId == 10002)
+            {
+                if(GameEntry.WeaponManager.WeaponGroupId <= 0) GameEntry.WeaponManager.WeaponGroupId = 90001;
+                CmdLoadWeaponGroup(GameEntry.WeaponManager.WeaponGroupId);
+            }
+            else
+            {
+                CmdLoadWeapon(GameEntry.WeaponManager.WeaponId);
+            }
         }
 
         public override void OnStartClient()
@@ -93,6 +105,16 @@ namespace ZHSM
             {
                 Position = transform.position
             });
+        }
+        
+        [Command]
+        private void CmdLoadWeaponGroup(int groupId)
+        {
+            Debug.Log("服务端加载武器组 >>> " + groupId);
+            
+            // 使用武器套装组件装备武器
+            GameEntry.WeaponManager.EquipWeaponGroup(groupId, connectionToClient);
+
         }
     }
 }

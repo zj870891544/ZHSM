@@ -48,14 +48,14 @@ namespace ZHSM
             entityComponent.ShowEntity(typeof(PlayerEntity), "Character", Constant.AssetPriority.CharacterAsset, data);
         }
 
+        public static void ShowB2LPlayer(this EntityComponent entityComponent, B2LPlayerEntityData data)
+        {
+            entityComponent.ShowEntity(typeof(B2LPlayerEntity), "Character", Constant.AssetPriority.CharacterAsset, data);
+        }
+
         public static void ShowWeapon(this EntityComponent entityComponent, WeaponData weaponData)
         {
             entityComponent.ShowEntity(typeof(WeaponEntity), "Weapon", Constant.AssetPriority.WeaponAsset, weaponData);
-        }
-
-        public static void ShowGrenade(this EntityComponent entityComponent, GrenadeData grenadeData)
-        {
-            entityComponent.ShowEntity(typeof(GrenadeEntity), "Grenade", Constant.AssetPriority.BulletAsset, grenadeData);
         }
 
         public static void ShowEnemy(this EntityComponent entityComponent, EnemyData enemyData)

@@ -15,7 +15,7 @@ namespace ZHSM
         [Header("盾牌设置")]
         [SerializeField] private Collider shieldCollider;//盾牌碰撞体，在防御状态下启用
         [SerializeField] private Transform shieldModel; //盾牌模型，可以在防御状态下改变位置/角度
-        [SerializeField] private Vector3 defendingPositionOffset = new Vector3(0.2f, 0, 0.3f);// 防御姿势的位置偏移和旋转
+        [SerializeField] private Vector3 defendingPositionOffset = new Vector3(0.2f, 0f, 0.3f);// 防御姿势的位置偏移和旋转
         [SerializeField] private Vector3 defendingRotationOffset = new Vector3(0, 30, 0);
 
         private Vector3 originalPosition;
@@ -146,8 +146,21 @@ namespace ZHSM
         {
             // 在这里实现盾牌主触发器行为
             base.OnTrigger();
+            // 盾牌特有逻辑：扳机按下时切换防御状态
+            if (isOwned)
+            {
+                if (!isDefending)
+                {
+                    OnDefendActivate();
+                    Debug.Log("盾牌：扳机触发防御激活");
+                }
+                else
+                {
+                    OnDefendDeactivate();
+                    Debug.Log("盾牌：扳机触发防御取消");
+                }
+            }
         }
-
         // 按下副按键(抓握)时进入防御状态
         public void OnDefendActivate()
         {
@@ -172,6 +185,15 @@ namespace ZHSM
         private void CmdSetDefending(bool defending, NetworkConnectionToClient sender = null)
         {
             isDefending = defending;
+            
+            // 查找可以受到伤害的组件
+            NetworkTargetable target = transform.GetComponentInParent<NetworkTargetable>();
+            if (target != null && sender != null)
+            {
+                int finalDamage = (int)CalculateDefendingDamage(weaponCfg.Damage);
+                target.TakeDamage(finalDamage);
+            }
+
         }
 
 

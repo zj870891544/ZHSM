@@ -147,6 +147,23 @@ namespace ZHSM
             isArmed = true;
             explodeTimer = 0f;
         }
+        
+        /// <summary>
+        /// 使用指定速度发射手雷（用于抛物线发射）
+        /// </summary>
+        /// <param name="velocity">发射速度向量</param>
+        [Server]
+        public void LaunchWithVelocity(Vector3 velocity)
+        {
+            if (rb == null) return;
+            
+            rb.isKinematic = false;
+            rb.velocity = velocity;
+            
+            // 手雷被发射后立即激活
+            isArmed = true;
+            explodeTimer = 0f;
+        }
 
         [Server]
         private void Explode()

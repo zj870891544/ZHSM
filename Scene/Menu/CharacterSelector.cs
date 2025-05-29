@@ -19,7 +19,7 @@ namespace ZHSM
             CharacterItem characterItem = grabItem as CharacterItem;
             if (characterItem)
             {
-                GameEntry.BigSpace.CharacterId = characterItem.characterId;
+                // GameEntry.BigSpace.CharacterId = characterItem.characterId;
                 
                 nameText.text = characterItem.DisplayName;
             }
@@ -29,7 +29,7 @@ namespace ZHSM
         {
             base.RemoveItem();
 
-            GameEntry.BigSpace.CharacterId = 0;
+            // GameEntry.BigSpace.CharacterId = 0;
             
             nameText.text = "未选择形象";
         }

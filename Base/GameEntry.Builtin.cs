@@ -114,6 +114,12 @@ namespace ZHSM
             private set;
         }
 
+        public static NetworkComponent Network
+        {
+            get;
+            private set;
+        }
+
         /// <summary>
         /// 获取对象池组件。
         /// </summary>
@@ -198,6 +204,7 @@ namespace ZHSM
             FileSystem = UnityGameFramework.Runtime.GameEntry.GetComponent<FileSystemComponent>();
             Fsm = UnityGameFramework.Runtime.GameEntry.GetComponent<FsmComponent>();
             Localization = UnityGameFramework.Runtime.GameEntry.GetComponent<LocalizationComponent>();
+            Network = UnityGameFramework.Runtime.GameEntry.GetComponent<NetworkComponent>();
             ObjectPool = UnityGameFramework.Runtime.GameEntry.GetComponent<ObjectPoolComponent>();
             Procedure = UnityGameFramework.Runtime.GameEntry.GetComponent<ProcedureComponent>();
             Resource = UnityGameFramework.Runtime.GameEntry.GetComponent<ResourceComponent>();

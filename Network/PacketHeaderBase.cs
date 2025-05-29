@@ -20,8 +20,6 @@ namespace ZHSM
 
         public abstract int Id { get; set; }
         public abstract int PacketLength { get; set; }
-        public abstract int Version { get; set; }
-        public abstract int ExCode { get; set; }
 
         public bool IsValid
         {
